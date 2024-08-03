@@ -38,8 +38,8 @@ class Toolbar(Gtk.Box):
 
     def on_date_changed(self, widget=None):
         # Enable the button only if both date fields are populated
-        start_date_text = self.start_date_entry.get_date()
-        end_date_text = self.end_date_entry.get_date()
+        start_date_text = self.start_date_entry.date
+        end_date_text = self.end_date_entry.date
 
         if start_date_text and end_date_text:
             try:
@@ -51,8 +51,10 @@ class Toolbar(Gtk.Box):
         else:
             self.view_logs_button.set_sensitive(False)
 
-    def get_start_date(self):
-        return self.start_date_entry.get_date()
+    @property
+    def start_date(self):
+        return self.start_date_entry.date
 
-    def get_end_date(self):
-        return self.end_date_entry.get_date()
+    @property
+    def end_date(self):
+        return self.end_date_entry.date

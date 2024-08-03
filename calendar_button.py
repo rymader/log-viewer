@@ -13,7 +13,7 @@ class CalendarButton(Gtk.Button):
     }
 
     def __init__(self, date_entry):
-        super().__init__(label=date_entry.get_date_type())
+        super().__init__(label=date_entry.date_type)
 
         self.calendar_window = None
 

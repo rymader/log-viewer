@@ -1,5 +1,4 @@
 import subprocess
-from datetime import datetime
 
 import gi
 
@@ -35,8 +34,8 @@ class LogViewer(Gtk.Window):
         scrolled_window.add(self.textview)  # Add TextView to the ScrolledWindow
 
     def on_button_clicked(self, widget):
-        start_date = self.toolbar.get_start_date()
-        end_date = self.toolbar.get_end_date()
+        start_date = self.toolbar.start_date
+        end_date = self.toolbar.end_date
 
         process = subprocess.Popen(['python3', 'log_reader.py', start_date, end_date], stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)

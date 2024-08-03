@@ -33,7 +33,7 @@ class CalendarWindow(Gtk.Window):
             year, month, day = calendar.get_date()
             selected_date = datetime(year, month + 1, day).strftime("%m-%d-%Y")
 
-            self.date_entry.set_date(selected_date)
+            self.date_entry.date = selected_date
             self.destroy()
             self.emit("date-entered")
         self.navigation_mode = False
