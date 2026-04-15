@@ -12,8 +12,7 @@ def check_platform() -> None:
     application code runs so the user receives a clear error immediately
     rather than a confusing import or runtime failure later.
 
-    Raises:
-        EnvironmentError: If the current platform is not Linux.
+    :raises EnvironmentError: If the current platform is not Linux.
     """
     if sys.platform != 'linux':
         raise EnvironmentError(
@@ -26,12 +25,11 @@ def check_systemd() -> None:
     """Verify that systemd is available on this system.
 
     Uses the presence of systemctl on the PATH as a proxy for systemd
-    being installed and active. This is checked at the application level
-    because the systemd journal is a core dependency of the entire app,
-    regardless of which reader backend is in use.
+    being available on this system. This is checked at the application
+    level because the systemd journal is a core dependency of the entire
+    app, regardless of which reader backend is in use.
 
-    Raises:
-        EnvironmentError: If systemctl is not found on the system PATH.
+    :raises EnvironmentError: If systemctl is not found on the system PATH.
     """
     if shutil.which('systemctl') is None:
         raise EnvironmentError(
@@ -46,8 +44,7 @@ def check_all() -> None:
     Calls each check in order, stopping at the first failure. Should
     be called once at application startup before any other code runs.
 
-    Raises:
-        EnvironmentError: If any system requirement is not met.
+    :raises EnvironmentError: If any system requirement is not met.
     """
     check_platform()
     check_systemd()

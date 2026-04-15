@@ -31,11 +31,10 @@ class CalendarWindow(Gtk.Window):  # type: ignore[misc, unused-ignore]
         date-entered: Emitted after a date is selected and written to
             the associated DateEntry.
 
-    Args:
-        date_entry: The DateEntry widget to populate on selection.
-            Must expose date_format and a date setter.
-        parent: The parent Gtk.Window to set as transient owner.
-            Required for correct modal behaviour across window managers.
+    :param date_entry: The DateEntry widget to populate on selection.
+        Must expose date_format and a date setter.
+    :param parent: The parent Gtk.Window to set as transient owner.
+        Required for correct modal behaviour across window managers.
     """
 
     __gsignals__ = {
@@ -71,8 +70,7 @@ class CalendarWindow(Gtk.Window):  # type: ignore[misc, unused-ignore]
         formats the selected date using the associated entry's format
         string, writes it to the entry, and closes this window.
 
-        Args:
-            calendar: The Gtk.Calendar that emitted the signal.
+        :param calendar: The Gtk.Calendar that emitted the signal.
         """
         if not self.navigation_mode:
             date: tuple[int, int, int] = calendar.get_date()  # type: ignore[assignment]
@@ -95,7 +93,6 @@ class CalendarWindow(Gtk.Window):  # type: ignore[misc, unused-ignore]
         subsequent day-selected event from being treated as a
         confirmed date selection.
 
-        Args:
-            calendar: The Gtk.Calendar that emitted the signal.
+        :param calendar: The Gtk.Calendar that emitted the signal.
         """
         self.navigation_mode = True
