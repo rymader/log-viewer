@@ -6,7 +6,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Pango
 
 from logviewer.models.query import LogQuery
-from logviewer.readers.base import LogReader
+from logviewer.readers.base import LogReader, LogReadError
 from logviewer.ui.gtk.toolbar import Toolbar
 
 
@@ -68,8 +68,13 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
         :param _toolbar: The Toolbar that emitted the signal (unused).
         :param query: The LogQuery built from the toolbar's current fields.
         """
-        output = self._reader.read_logs(query)
-
         buffer = self.textview.get_buffer()
+
+        try:
+            output = self._reader.read_logs(query)
+        except LogReadError as e:
+            buffer.set_text(f"Error reading logs:\n\n{e}")
+            return
+
         buffer.set_text(output if output else "No log entries found for the selected date range.")
         self.resize(1500, 1000) # type: ignore[attr-defined]

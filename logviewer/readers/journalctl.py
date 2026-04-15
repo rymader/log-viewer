@@ -4,7 +4,7 @@ import shutil
 import subprocess
 
 from logviewer.models.query import LogQuery
-from logviewer.readers.base import LogReader
+from logviewer.readers.base import LogReader, LogReadError
 
 
 class JournalctlLogReader(LogReader):
@@ -45,6 +45,7 @@ class JournalctlLogReader(LogReader):
             journalctl's -g flag.
         :returns: The raw journal output as a string, or an empty string if
             no entries matched.
+        :raises LogReadError: If journalctl exits with a non-zero return code.
         """
         cmd = [
             'journalctl',
@@ -58,4 +59,9 @@ class JournalctlLogReader(LogReader):
             cmd.extend(['-g', query.filter_pattern])
 
         result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            message = result.stderr.strip() or f"journalctl exited with code {result.returncode}"
+            raise LogReadError(message)
+
         return result.stdout

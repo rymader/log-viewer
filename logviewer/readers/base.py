@@ -5,6 +5,15 @@ from abc import ABC, abstractmethod
 from logviewer.models.query import LogQuery
 
 
+class LogReadError(Exception):
+    """Raised when a log reader fails to fetch entries.
+
+    Wraps backend-specific failures (e.g. non-zero journalctl exit,
+    permission denied, invalid regex) into a single domain exception
+    so callers do not need to handle subprocess or IO errors directly.
+    """
+
+
 class LogReader(ABC):
     """Interface for all log reader implementations.
 

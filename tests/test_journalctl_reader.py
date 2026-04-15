@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from logviewer.models.query import LogQuery
-from logviewer.readers.base import LogReader
+from logviewer.readers.base import LogReader, LogReadError
 from logviewer.readers.journalctl import JournalctlLogReader
 
 
@@ -27,9 +27,11 @@ class TestJournalctlLogReaderInit:
             assert isinstance(reader, LogReader)
 
 
-def _make_result(stdout=''):
+def _make_result(stdout='', returncode=0, stderr=''):
     result = MagicMock()
     result.stdout = stdout
+    result.returncode = returncode
+    result.stderr = stderr
     return result
 
 
@@ -83,3 +85,23 @@ class TestJournalctlLogReaderReadLogs:
         with patch('subprocess.run', return_value=_make_result(stdout=expected)):
             result = reader.read_logs(query)
             assert result == expected
+
+    def test_raises_log_read_error_on_nonzero_exit(self, reader):
+        query = LogQuery(datetime(2026, 4, 1), datetime(2026, 4, 13))
+        failed = _make_result(returncode=1, stderr='Failed to seek')
+        with patch('subprocess.run', return_value=failed):
+            with pytest.raises(LogReadError):
+                reader.read_logs(query)
+
+    def test_error_message_includes_stderr(self, reader):
+        query = LogQuery(datetime(2026, 4, 1), datetime(2026, 4, 13))
+        failed = _make_result(returncode=1, stderr='Invalid regex')
+        with patch('subprocess.run', return_value=failed):
+            with pytest.raises(LogReadError, match='Invalid regex'):
+                reader.read_logs(query)
+
+    def test_error_message_fallback_when_stderr_empty(self, reader):
+        query = LogQuery(datetime(2026, 4, 1), datetime(2026, 4, 13))
+        with patch('subprocess.run', return_value=_make_result(returncode=2, stderr='')):
+            with pytest.raises(LogReadError, match='exited with code 2'):
+                reader.read_logs(query)
