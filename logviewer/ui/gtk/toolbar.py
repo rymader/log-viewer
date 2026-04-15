@@ -132,13 +132,15 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         """Update button sensitivity and error label based on current field state.
 
         Called whenever any date or time field changes. Distinguishes
-        three states:
+        these states:
 
-        - Incomplete: either date field cannot be parsed. Button disabled,
-          error label hidden.
-        - Invalid range: both dates parse but start is later than end.
-          Button disabled, error label shown.
-        - Valid: both dates parse and start is on or before end.
+        - Incomplete: either date field cannot be parsed, or a time field
+          has partial input. Button disabled, error label hidden.
+        - Invalid time: a fully entered time field has an out-of-range
+          value (e.g. hour > 23). Button disabled, error label shown.
+        - Invalid range: dates and times are valid but start is later
+          than end. Button disabled, error label shown.
+        - Valid: all fields parse correctly and range is valid.
           Button enabled, error label hidden.
 
         :param _widget: The widget that emitted the change signal (unused).
@@ -151,6 +153,24 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
             self._error_label.hide()
             self.view_logs_button.set_sensitive(False)
             return
+
+        for time_str in (self.start_time_entry.time, self.end_time_entry.time):
+            if not time_str:
+                continue  # empty is fine — _apply_time will use the day boundary default
+            if len(time_str) < 8:
+                # Partial input — not ready yet, but not an error
+                self._error_label.hide()
+                self.view_logs_button.set_sensitive(False)
+                return
+            try:
+                datetime.strptime(time_str, "%H:%M:%S")
+            except ValueError:
+                self._error_label.set_text(  # type: ignore[attr-defined]
+                    "Invalid time value (hours: 00–23, minutes/seconds: 00–59)"
+                )
+                self._error_label.show()
+                self.view_logs_button.set_sensitive(False)
+                return
 
         start = self._apply_time(start, self.start_time_entry.time, self._START_OF_DAY)
         end = self._apply_time(end, self.end_time_entry.time, self._END_OF_DAY)
