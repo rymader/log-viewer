@@ -17,13 +17,14 @@ pytest
 pytest tests/test_foo.py::TestClass::test_name   # single test
 
 # Lint
-ruff check .          # check
-ruff check --fix .    # auto-fix
+ruff check --fix .    # auto-fix then check
 ruff format .         # format
 
 # Type check
 mypy .
 ```
+
+Always run `ruff check --fix .` rather than `ruff check .` — auto-fix import sorting and other fixable errors proactively before reporting results. Follow with `pytest`.
 
 Line length is 100 characters (configured in `pyproject.toml`).
 

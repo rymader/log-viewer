@@ -1,7 +1,5 @@
 """Toolbar widget containing date/time range controls and the View Logs button."""
 
-from datetime import datetime, time
-
 import gi
 
 gi.require_version('Gtk', '3.0')
@@ -11,6 +9,7 @@ from logviewer.models.query import LogQuery
 from logviewer.ui.gtk.calendar_button import CalendarButton
 from logviewer.ui.gtk.date_entry import DateEntry
 from logviewer.ui.gtk.time_entry import TimeEntry
+from logviewer.ui.gtk.validation import compute_validation
 
 
 class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
@@ -38,9 +37,6 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         the system locale, e.g. '%m/%d/%Y'. Passed to DateEntry
         widgets to drive auto-formatting and parsing.
     """
-
-    _START_OF_DAY: time = time(0, 0, 0)
-    _END_OF_DAY: time = time(23, 59, 59)
 
     __gsignals__ = {
         'query-ready': (GObject.SIGNAL_RUN_FIRST, None, (GObject.TYPE_PYOBJECT,))
@@ -87,47 +83,20 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
 
     @property
     def query(self) -> LogQuery | None:
-        """Build a LogQuery from the current field values.
+        """Build a LogQuery from the current field values if they are valid.
 
-        Parses the date entries using the locale format string. Returns
-        None if either date is incomplete. Time fields are optional — if
-        a time field cannot be parsed as HH:MM:SS, a default boundary
-        time is used (00:00:00 for start, 23:59:59 for end).
+        Delegates to compute_validation. Returns None if the form is
+        incomplete or invalid.
 
-        Raises ValueError (from LogQuery) if start is later than end.
-        In normal UI flow this cannot happen because _validate() keeps
-        the button disabled for invalid ranges — this only surfaces if
-        query is called directly with inverted dates (e.g. in tests).
-
-        :returns: A LogQuery if both dates are complete, otherwise None.
-        :raises ValueError: If the resolved start is later than end.
+        :returns: A LogQuery if the form is complete and valid, otherwise None.
         """
-        try:
-            start = datetime.strptime(self.start_date_entry.date, self._date_format)
-            end = datetime.strptime(self.end_date_entry.date, self._date_format)
-        except ValueError:
-            return None
-
-        # Apply time if fully entered, otherwise fall back to day boundaries
-        start = self._apply_time(start, self.start_time_entry.time, self._START_OF_DAY)
-        end = self._apply_time(end, self.end_time_entry.time, self._END_OF_DAY)
-
-        return LogQuery(start, end)
-
-    @staticmethod
-    def _apply_time(dt: datetime, time_str: str, default: time) -> datetime:
-        """Apply a time string to a date, falling back to a default if unparseable.
-
-        :param dt: The base date to apply the time to.
-        :param time_str: A time string in HH:MM:SS format. If empty or
-            incomplete, default is used instead.
-        :param default: Default time if time_str cannot be parsed.
-        :returns: The datetime with the time component applied.
-        """
-        try:
-            return datetime.combine(dt.date(), datetime.strptime(time_str, "%H:%M:%S").time())
-        except ValueError:
-            return datetime.combine(dt.date(), default)
+        return compute_validation(
+            self.start_date_entry.date,
+            self.end_date_entry.date,
+            self.start_time_entry.time,
+            self.end_time_entry.time,
+            self._date_format,
+        ).query
 
     def start_fetch(self) -> None:
         """Mark a fetch as in progress and recompute button state.
@@ -152,57 +121,25 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
     def _validate(self, _widget: object = None) -> None:
         """Update button sensitivity and error label based on current field state.
 
-        Called whenever any date or time field changes. Distinguishes
-        these states:
-
-        - Incomplete: either date field cannot be parsed, or a time field
-          has partial input. Button disabled, error label hidden.
-        - Invalid time: a fully entered time field has an out-of-range
-          value (e.g. hour > 23). Button disabled, error label shown.
-        - Invalid range: dates and times are valid but start is later
-          than end. Button disabled, error label shown.
-        - Valid: all fields parse correctly and range is valid.
-          Button enabled, error label hidden.
+        Delegates all logic to compute_validation and applies the result
+        to the GTK widgets. The button is only enabled when the form is
+        valid and no fetch is in progress.
 
         :param _widget: The widget that emitted the change signal (unused).
         """
-        try:
-            start = datetime.strptime(self.start_date_entry.date, self._date_format)
-            end = datetime.strptime(self.end_date_entry.date, self._date_format)
-        except ValueError:
-            # Incomplete — not an error, just not ready yet
-            self._error_label.hide()
-            self.view_logs_button.set_sensitive(False)
-            return
-
-        for time_str in (self.start_time_entry.time, self.end_time_entry.time):
-            if not time_str:
-                continue  # empty is fine — _apply_time will use the day boundary default
-            if len(time_str) < 8:
-                # Partial input — not ready yet, but not an error
-                self._error_label.hide()
-                self.view_logs_button.set_sensitive(False)
-                return
-            try:
-                datetime.strptime(time_str, "%H:%M:%S")
-            except ValueError:
-                self._error_label.set_text(  # type: ignore[attr-defined]
-                    "Invalid time value (hours: 00–23, minutes/seconds: 00–59)"
-                )
-                self._error_label.show()
-                self.view_logs_button.set_sensitive(False)
-                return
-
-        start = self._apply_time(start, self.start_time_entry.time, self._START_OF_DAY)
-        end = self._apply_time(end, self.end_time_entry.time, self._END_OF_DAY)
-
-        if start > end:
-            self._error_label.set_text("End date/time must be on or after start date/time")  # type: ignore[attr-defined]
+        result = compute_validation(
+            self.start_date_entry.date,
+            self.end_date_entry.date,
+            self.start_time_entry.time,
+            self.end_time_entry.time,
+            self._date_format,
+        )
+        if result.error:
+            self._error_label.set_text(result.error)  # type: ignore[attr-defined]
             self._error_label.show()
-            self.view_logs_button.set_sensitive(False)
         else:
             self._error_label.hide()
-            self.view_logs_button.set_sensitive(not self._fetch_in_progress)
+        self.view_logs_button.set_sensitive(result.ready and not self._fetch_in_progress)
 
     def _on_view_logs_clicked(self, _button: Gtk.Button) -> None:
         """Build the query and emit 'query-ready' when View Logs is clicked.
