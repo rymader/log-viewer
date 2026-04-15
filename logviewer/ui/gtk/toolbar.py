@@ -50,6 +50,7 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         super().__init__(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
         self._date_format = date_format
+        self._fetch_in_progress = False
 
         # Create start date/time entries and calendar button
         self.start_date_entry = DateEntry("Start Date", self._date_format)
@@ -128,6 +129,26 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         except ValueError:
             return datetime.combine(dt.date(), default)
 
+    def start_fetch(self) -> None:
+        """Mark a fetch as in progress and recompute button state.
+
+        Called by the window layer when a background read begins. Prevents
+        _validate() from re-enabling the button while the fetch is running,
+        even if the user edits the form into a valid state mid-flight.
+        """
+        self._fetch_in_progress = True
+        self._validate()
+
+    def end_fetch(self) -> None:
+        """Mark a fetch as complete and recompute button state.
+
+        Called by the window layer when a background read finishes
+        (success or error). Re-runs _validate() so the button state
+        reflects the current form rather than being blindly re-enabled.
+        """
+        self._fetch_in_progress = False
+        self._validate()
+
     def _validate(self, _widget: object = None) -> None:
         """Update button sensitivity and error label based on current field state.
 
@@ -181,7 +202,7 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
             self.view_logs_button.set_sensitive(False)
         else:
             self._error_label.hide()
-            self.view_logs_button.set_sensitive(True)
+            self.view_logs_button.set_sensitive(not self._fetch_in_progress)
 
     def _on_view_logs_clicked(self, _button: Gtk.Button) -> None:
         """Build the query and emit 'query-ready' when View Logs is clicked.
@@ -192,7 +213,9 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
 
         :param _button: The Gtk.Button that emitted the 'clicked' signal (unused).
         """
-        self.emit("query-ready", self.query)
+        query = self.query
+        assert query is not None, "button should only be enabled when query is valid"
+        self.emit("query-ready", query)
 
     def clear(self) -> None:
         """Clear all date and time entry fields."""

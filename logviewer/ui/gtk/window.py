@@ -77,7 +77,7 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
         """
         self._loading_frame = 0
         self._loading_timeout_id = GLib.timeout_add(80, self._tick_loading)
-        self.toolbar.view_logs_button.set_sensitive(False)
+        self.toolbar.start_fetch()
 
         thread = threading.Thread(target=self._fetch_logs, args=(query,), daemon=True)
         thread.start()
@@ -114,6 +114,8 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
             GLib.idle_add(self._display_logs, output)
         except LogReadError as e:
             GLib.idle_add(self._display_error, str(e))
+        except Exception as e:
+            GLib.idle_add(self._display_error, f"Unexpected error: {e}")
 
     def _display_logs(self, output: str) -> bool:
         """Update the text view with fetched log output.
@@ -129,7 +131,7 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
             output if output else "No log entries found for the selected date range."
         )
         self.resize(1500, 1000)  # type: ignore[attr-defined]
-        self.toolbar.view_logs_button.set_sensitive(True)
+        self.toolbar.end_fetch()
         return GLib.SOURCE_REMOVE
 
     def _display_error(self, message: str) -> bool:
@@ -142,5 +144,5 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
         """
         self._stop_loading()
         self.textview.get_buffer().set_text(f"Error reading logs:\n\n{message}")  # type: ignore[attr-defined]
-        self.toolbar.view_logs_button.set_sensitive(True)
+        self.toolbar.end_fetch()
         return GLib.SOURCE_REMOVE
