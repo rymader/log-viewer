@@ -11,17 +11,15 @@ class LogQuery:
     reader is responsible for translating these fields into its own
     query syntax.
 
-    Attributes:
-        start: The inclusive start of the time range to query.
-        end: The inclusive end of the time range to query.
-        filter_pattern: An optional regex pattern to filter log entries.
-            An empty string means no filtering is applied.
+    :ivar start: The inclusive start of the time range to query.
+    :ivar end: The inclusive end of the time range to query.
+    :ivar filter_pattern: An optional regex pattern to filter log entries.
+        An empty string means no filtering is applied.
 
-    Args:
-        start: The inclusive start of the time range to query.
-        end: The inclusive end of the time range to query.
-        filter_pattern: An optional regex pattern to filter log entries.
-            Defaults to empty string (no filter).
+    :param start: The inclusive start of the time range to query.
+    :param end: The inclusive end of the time range to query.
+    :param filter_pattern: An optional regex pattern to filter log entries.
+        Defaults to empty string (no filter).
     """
 
     def __init__(self, start: datetime, end: datetime, filter_pattern: str = ''):

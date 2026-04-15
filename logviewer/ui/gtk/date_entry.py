@@ -30,12 +30,11 @@ class DateEntry(Gtk.Box):  # type: ignore[misc, unused-ignore]
     Signals:
         date-entered: Emitted when the entry text changes.
 
-    Args:
-        date_type: A label describing this field's role, e.g. 'Start Date'.
-            Used by CalendarButton as its button label.
-        date_format: A strptime-style format string defining the expected
-            date format, e.g. '%m/%d/%Y'. Typically provided by
-            detect_date_format() at application startup.
+    :param date_type: A label describing this field's role, e.g. 'Start Date'.
+        Used by CalendarButton as its button label.
+    :param date_format: A strptime-style format string defining the expected
+        date format, e.g. '%m/%d/%Y'. Typically provided by
+        detect_date_format() at application startup.
     """
 
     __gsignals__ = {
@@ -84,8 +83,7 @@ class DateEntry(Gtk.Box):  # type: ignore[misc, unused-ignore]
         selected. The value should already be formatted correctly for
         the locale (i.e. produced by strftime with this entry's format).
 
-        Args:
-            value: The date string to display, e.g. '04/13/2026'.
+        :param value: The date string to display, e.g. '04/13/2026'.
         """
         self._entry.set_text(value)
 
@@ -102,8 +100,7 @@ class DateEntry(Gtk.Box):  # type: ignore[misc, unused-ignore]
         positioning until after GTK has finished processing the
         keystroke event, preventing the cursor from jumping mid-field.
 
-        Args:
-            widget: The Gtk.Entry that emitted the 'changed' signal.
+        :param widget: The Gtk.Entry that emitted the 'changed' signal.
         """
         # Prevent recursive calls caused by set_text() below
         if self._updating:

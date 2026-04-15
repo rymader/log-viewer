@@ -21,8 +21,7 @@ def _show_error_and_exit(message: str) -> NoReturn:
     way rather than printing to stderr (which may not be visible if the
     app was launched from a file manager or desktop shortcut).
 
-    Args:
-        message: The error message to display in the dialog.
+    :param message: The error message to display in the dialog.
     """
     dialog = Gtk.MessageDialog(
         message_type=Gtk.MessageType.ERROR,

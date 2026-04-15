@@ -18,11 +18,8 @@ class LogReader(ABC):
     def read_logs(self, query: LogQuery) -> str:
         """Fetch log entries matching the given query.
 
-        Args:
-            query: The query parameters including time range and
-                optional filter pattern.
-
-        Returns:
-            The log output as a plain string. Returns an empty string
+        :param query: The query parameters including time range and
+            optional filter pattern.
+        :returns: The log output as a plain string. Returns an empty string
             if no entries matched the query.
         """

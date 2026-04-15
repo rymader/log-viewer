@@ -33,11 +33,10 @@ class CalendarButton(Gtk.Button):  # type: ignore[misc, unused-ignore]
         date-entered: Emitted when the user confirms a date in the
             CalendarWindow.
 
-    Args:
-        date_entry: The DateEntry widget this button is paired with.
-            Its date_type is used for the button label, its date_format
-            is used to format the selected date, and its date setter
-            is called to populate the field.
+    :param date_entry: The DateEntry widget this button is paired with.
+        Its date_type is used for the button label, its date_format
+        is used to format the selected date, and its date setter
+        is called to populate the field.
     """
 
     __gsignals__ = {
@@ -57,8 +56,7 @@ class CalendarButton(Gtk.Button):  # type: ignore[misc, unused-ignore]
         Retrieves the top-level window via get_toplevel() and passes it
         to CalendarWindow so the modal can block the correct parent.
 
-        Args:
-            button: The Gtk.Button that emitted the 'clicked' signal.
+        :param button: The Gtk.Button that emitted the 'clicked' signal.
         """
         if self.calendar_window:
             self.calendar_window.destroy()  # Close any existing calendar window
@@ -74,7 +72,6 @@ class CalendarButton(Gtk.Button):  # type: ignore[misc, unused-ignore]
     def on_date_selected(self, calendar: CalendarWindow) -> None:
         """Re-emit 'date-entered' when the CalendarWindow confirms a selection.
 
-        Args:
-            calendar: The CalendarWindow that emitted the signal.
+        :param calendar: The CalendarWindow that emitted the signal.
         """
         self.emit("date-entered")

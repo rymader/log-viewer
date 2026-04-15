@@ -18,11 +18,8 @@ class DateFormat:
         a letter nor a format specifier prefix (%). Common separators
         are '/', '-', and '.'.
 
-        Args:
-            date_format: A strptime-style format string, e.g. '%m/%d/%Y'.
-
-        Returns:
-            The separator character, or '-' if none is found.
+        :param date_format: A strptime-style format string, e.g. '%m/%d/%Y'.
+        :returns: The separator character, or '-' if none is found.
         """
         for char in date_format:
             if not char.isalpha() and char != '%':
@@ -37,11 +34,8 @@ class DateFormat:
         display order dictated by the format string (e.g. month-first
         for US locales, day-first for European locales).
 
-        Args:
-            date_format: A strptime-style format string, e.g. '%d/%m/%Y'.
-
-        Returns:
-            A list of digit lengths, one per field. %Y produces 4;
+        :param date_format: A strptime-style format string, e.g. '%d/%m/%Y'.
+        :returns: A list of digit lengths, one per field. %Y produces 4;
             all other supported tokens produce 2.
             Example: '%m/%d/%Y' → [2, 2, 4]
         """
@@ -56,11 +50,8 @@ class DateFormat:
         Replaces format tokens with their uppercase label equivalents
         for use as entry field placeholder text.
 
-        Args:
-            date_format: A strptime-style format string, e.g. '%m/%d/%Y'.
-
-        Returns:
-            A human-readable placeholder string, e.g. 'MM/DD/YYYY'.
+        :param date_format: A strptime-style format string, e.g. '%m/%d/%Y'.
+        :returns: A human-readable placeholder string, e.g. 'MM/DD/YYYY'.
         """
         return (date_format
                 .replace('%m', 'MM')
@@ -77,14 +68,11 @@ class DateFormat:
         between fields that have been reached by the current digit
         count, so partial input formats correctly as the user types.
 
-        Args:
-            digits: A string of digit characters only, e.g. '04132026'.
-            field_lengths: The digit length of each field in order,
-                e.g. [2, 2, 4] for MM/DD/YYYY.
-            separator: The character to insert between fields, e.g. '/'.
-
-        Returns:
-            The formatted string, e.g. '04/13/2026'. Partial input
+        :param digits: A string of digit characters only, e.g. '04132026'.
+        :param field_lengths: The digit length of each field in order,
+            e.g. [2, 2, 4] for MM/DD/YYYY.
+        :param separator: The character to insert between fields, e.g. '/'.
+        :returns: The formatted string, e.g. '04/13/2026'. Partial input
             such as '041' produces '04/1'.
         """
         result = ''

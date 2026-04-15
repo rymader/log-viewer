@@ -14,9 +14,8 @@ class JournalctlLogReader(LogReader):
     stdout as the return value. Requires journalctl to be available
     on the system PATH.
 
-    Raises:
-        EnvironmentError: If journalctl is not found on the system PATH
-            at instantiation time.
+    :raises EnvironmentError: If journalctl is not found on the system PATH
+        at instantiation time.
     """
 
     # journalctl expects timestamps in this exact format for -S and -U flags
@@ -25,8 +24,7 @@ class JournalctlLogReader(LogReader):
     def __init__(self) -> None:
         """Verify that journalctl is available on the system PATH.
 
-        Raises:
-            EnvironmentError: If journalctl cannot be found.
+        :raises EnvironmentError: If journalctl cannot be found.
         """
         if shutil.which('journalctl') is None:
             raise EnvironmentError(
@@ -41,14 +39,11 @@ class JournalctlLogReader(LogReader):
         it as a subprocess. The --no-pager flag ensures output is
         captured in full rather than paged interactively.
 
-        Args:
-            query: The query parameters. The time range is formatted
-                to journalctl's required timestamp format. If
-                filter_pattern is set, it is passed as a regex to
-                journalctl's -g flag.
-
-        Returns:
-            The raw journal output as a string, or an empty string if
+        :param query: The query parameters. The time range is formatted
+            to journalctl's required timestamp format. If
+            filter_pattern is set, it is passed as a regex to
+            journalctl's -g flag.
+        :returns: The raw journal output as a string, or an empty string if
             no entries matched.
         """
         cmd = [

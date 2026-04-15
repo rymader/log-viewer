@@ -30,10 +30,9 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         query-ready (LogQuery): Emitted when View Logs is clicked and
             a valid query can be constructed.
 
-    Args:
-        date_format: A strptime-style date format string derived from
-            the system locale, e.g. '%m/%d/%Y'. Passed to DateEntry
-            widgets to drive auto-formatting and parsing.
+    :param date_format: A strptime-style date format string derived from
+        the system locale, e.g. '%m/%d/%Y'. Passed to DateEntry
+        widgets to drive auto-formatting and parsing.
     """
 
     __gsignals__ = {
@@ -83,8 +82,7 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         a default boundary time is used (00:00:00 for start, 23:59:59
         for end).
 
-        Returns:
-            A LogQuery if both dates are valid, otherwise None.
+        :returns: A LogQuery if both dates are valid, otherwise None.
         """
         try:
             start = datetime.strptime(self.start_date_entry.date, self._date_format)
@@ -104,16 +102,13 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
     ) -> datetime:
         """Apply a time string to a date, falling back to defaults if unparseable.
 
-        Args:
-            dt: The base date to apply the time to.
-            time_str: A time string in HH:MM:SS format. If empty or
-                incomplete, defaults are used instead.
-            default_h: Default hour if time_str cannot be parsed.
-            default_m: Default minute if time_str cannot be parsed.
-            default_s: Default second if time_str cannot be parsed.
-
-        Returns:
-            The datetime with the time component applied.
+        :param dt: The base date to apply the time to.
+        :param time_str: A time string in HH:MM:SS format. If empty or
+            incomplete, defaults are used instead.
+        :param default_h: Default hour if time_str cannot be parsed.
+        :param default_m: Default minute if time_str cannot be parsed.
+        :param default_s: Default second if time_str cannot be parsed.
+        :returns: The datetime with the time component applied.
         """
         try:
             t = datetime.strptime(time_str, "%H:%M:%S")
@@ -128,8 +123,7 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
         enabled only when both date fields can be successfully parsed.
         Time fields are not required for the button to activate.
 
-        Args:
-            widget: The widget that emitted the change signal (unused).
+        :param widget: The widget that emitted the change signal (unused).
         """
         try:
             datetime.strptime(self.start_date_entry.date, self._date_format)
@@ -141,8 +135,7 @@ class Toolbar(Gtk.Box):  # type: ignore[misc, unused-ignore]
     def _on_view_logs_clicked(self, button: Gtk.Button) -> None:
         """Build the query and emit 'query-ready' when View Logs is clicked.
 
-        Args:
-            button: The Gtk.Button that emitted the 'clicked' signal.
+        :param button: The Gtk.Button that emitted the 'clicked' signal.
         """
         query = self.query
         if query is not None:

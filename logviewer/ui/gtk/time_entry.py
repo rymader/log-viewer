@@ -56,8 +56,7 @@ class TimeEntry(Gtk.Box):  # type: ignore[misc, unused-ignore]
     def time(self, value: str) -> None:
         """Set the entry text directly.
 
-        Args:
-            value: The time string to display, e.g. '14:30:00'.
+        :param value: The time string to display, e.g. '14:30:00'.
         """
         self._entry.set_text(value)
 
@@ -73,8 +72,7 @@ class TimeEntry(Gtk.Box):  # type: ignore[misc, unused-ignore]
         entered. Uses GLib.idle_add to defer cursor positioning until
         after GTK has finished processing the keystroke event.
 
-        Args:
-            widget: The Gtk.Entry that emitted the 'changed' signal.
+        :param widget: The Gtk.Entry that emitted the 'changed' signal.
         """
         # Prevent recursive calls caused by set_text() below
         if self._updating:

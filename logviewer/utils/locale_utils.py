@@ -15,8 +15,7 @@ def detect_date_format() -> str:
     the user's regional date ordering (e.g. '%m/%d/%Y' for US,
     '%d/%m/%Y' for UK).
 
-    Returns:
-        A strptime-style date format string derived from the system
+    :returns: A strptime-style date format string derived from the system
         locale. Falls back to ISO format ('%Y-%m-%d') if the locale
         cannot be determined or does not contain recognised date tokens.
     """

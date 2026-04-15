@@ -3,7 +3,7 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Pango
 
 from logviewer.models.query import LogQuery
 from logviewer.readers.base import LogReader
@@ -22,10 +22,9 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
     making it straightforward to swap in a different reader backend or
     a mock for testing without modifying this class.
 
-    Args:
-        reader: The log reader backend to use for fetching logs.
-        date_format: A strptime-style date format string from the
-            system locale, passed through to the Toolbar.
+    :param reader: The log reader backend to use for fetching logs.
+    :param date_format: A strptime-style date format string from the
+        system locale, passed through to the Toolbar.
     """
 
     def __init__(self, reader: LogReader, date_format: str) -> None:
@@ -53,24 +52,24 @@ class LogViewer(Gtk.Window):  # type: ignore[misc, unused-ignore]
         # Create a TextView widget to display the output
         self.textview = Gtk.TextView()
         self.textview.set_editable(False)
-        self.textview.set_wrap_mode(Gtk.WrapMode.WORD)
+        self.textview.set_wrap_mode(Gtk.WrapMode.NONE)
+        self.textview.modify_font(  # type: ignore[attr-defined]
+            Pango.FontDescription.from_string('Monospace 10')
+        )
         scrolled_window.add(self.textview) # type: ignore[attr-defined]
 
-    def on_query_ready(self, toolbar: Toolbar, query: LogQuery) -> None:
+    def on_query_ready(self, _toolbar: Toolbar, query: LogQuery) -> None:
         """Fetch and display logs when the toolbar emits a ready query.
 
         Connected to the Toolbar's 'query-ready' signal. Passes the
         query to the injected reader, then displays the result in the
         TextView. Shows a descriptive message if no entries were found.
-        Clears the toolbar fields after a successful fetch.
 
-        Args:
-            toolbar: The Toolbar that emitted the signal.
-            query: The LogQuery built from the toolbar's current fields.
+        :param _toolbar: The Toolbar that emitted the signal (unused).
+        :param query: The LogQuery built from the toolbar's current fields.
         """
         output = self._reader.read_logs(query)
 
         buffer = self.textview.get_buffer()
         buffer.set_text(output if output else "No log entries found for the selected date range.")
         self.resize(1500, 1000) # type: ignore[attr-defined]
-        self.toolbar.clear()
